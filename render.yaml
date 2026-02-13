@@ -1,7 +1,7 @@
 services:
   - type: web
-    name: my-flask-app
+    name: test_flask_api
     env: python
     pythonVersion: 3.11
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     startCommand: gunicorn app:app
