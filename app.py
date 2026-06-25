@@ -12,12 +12,13 @@ app = Flask(__name__)
 # -------------------------
 # Load model
 # -------------------------
-model_path = 'model/TCT_verifier_842x595.h5'
+base_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(base_dir, 'model', 'TCT_verifier_842x595.h5')
 # careful handling if model doesn't exist yet
 try:
     model = keras.models.load_model(model_path)
 except Exception as e:
-    print(f"Warning: Model not found at {model_path}. Please place the model file there.")
+    app.logger.warning(f"Warning loading model at {model_path}: {e}")
     model = None
 
 # -------------------------
@@ -43,8 +44,13 @@ def predict_image(img: Image.Image):
     return float(pred), status
 
 # -------------------------
-# API route
+# API routes
 # -------------------------
+@app.route('/', methods=['GET'])
+def health_check():
+    return jsonify({"status": "ok", "message": "Flask app is running"}), 200
+
+
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
@@ -74,4 +80,5 @@ def predict():
 # Run server
 # -------------------------
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
